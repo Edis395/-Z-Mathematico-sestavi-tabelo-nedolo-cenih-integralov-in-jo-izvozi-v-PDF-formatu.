@@ -1,0 +1,296 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     12352,        288]
+NotebookOptionsPosition[      8561,        227]
+NotebookOutlinePosition[      8967,        243]
+CellTagsIndexPosition[      8924,        240]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Tabela nedolo\[CHacek]enih integralov z Wolfram Mathematico", "Title",ExpressionUUID->"031e3235-9d7f-a246-937f-91cb1d4adc76"],
+
+Cell["\<\
+Projektna naloga pri predmetu Ra\[CHacek]unalni\[SHacek]ka orodja v \
+matematiki. Avtor: Edis Kova\[CHacek]evi\[CAcute].\
+\>", "Text",ExpressionUUID->"b1643336-955e-9842-a67a-469302de025f"],
+
+Cell[CellGroupData[{
+
+Cell["1. Uvod", "Section",ExpressionUUID->"cc8e7900-d782-5f42-8a97-444e04f37027"],
+
+Cell["\<\
+Nedolo\[CHacek]eni integral funkcije f(x) je dru\[ZHacek]ina funkcij oblike \
+F(x) + C, za katere velja F'(x) = f(x). V tej nalogi z Mathematico sestavimo \
+pregledno tabelo nedolo\[CHacek]enih integralov osnovnih elementarnih funkcij \
+(poten\[CHacek]nih, trigonometri\[CHacek]nih, eksponentnih, logaritemskih \
+...), jo obogatimo z lastnimi funkcijami in poizvedbami ter jo na koncu \
+izvozimo v PDF.\
+\>", "Text",ExpressionUUID->"d53a8ba2-3e30-7448-a2f9-7754129cba27"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["2. Osnovni prikaz", "Section",ExpressionUUID->"9309f20b-7cec-924e-9e35-2ebea5b30ea6"],
+
+Cell["\<\
+Osnovne integrale izra\[CHacek]unamo z ukazom Integrate. Rezultat lahko prika\
+\[ZHacek]emo v tradicionalni matemati\[CHacek]ni obliki z TraditionalForm.\
+\>", "Text",ExpressionUUID->"4fddb8f8-d9c8-3844-bd1a-0a225b035a43"],
+
+Cell["\<\
+Integrate[x^2, x]
+Integrate[Sin[x], x]
+Integrate[1/x, x]
+TraditionalForm[Integrate[Exp[x] Cos[x], x]]\
+\>", "Input",ExpressionUUID->"8d4b772a-b9d5-c340-bb13-717b85d4cd8f"],
+
+Cell["\<\
+Definiramo seznam funkcij, ki jih bomo uporabljali skozi celotno nalogo.\
+\>", "Text",ExpressionUUID->"caf2258e-da5a-0442-8cc1-52517bcedbac"],
+
+Cell["\<\
+funkcije = {x^3, 1/x, Exp[x], Sin[x], Cos[x], 1/(1 + x^2), Sec[x]^2, 1/Sqrt[1 \
+- x^2]};\
+\>", "Input",ExpressionUUID->"f285f53b-9a39-8f4d-afcd-2e7884e965db"],
+
+Cell["\<\
+Sestavimo enostavno tabelo funkcija -> integral z ukazom Table in jo prika\
+\[ZHacek]emo z Grid.\
+\>", "Text",ExpressionUUID->"f307e1f8-cf6b-4340-a18a-d2874c1f4712"],
+
+Cell["\<\
+osnovnaTabela = Table[{TraditionalForm[f], TraditionalForm[Integrate[f, x]]}, \
+{f, funkcije}];
+Grid[Prepend[osnovnaTabela, {\"f(x)\", \"integral f(x) dx\"}], Frame -> All, \
+Background -> {None, {1 -> LightBlue}}]\
+\>", "Input",ExpressionUUID->"a8152bf6-25c9-c340-93cd-e9cedb325020"],
+
+Cell["\<\
+Za ponazoritev nari\[SHacek]emo funkcijo in njen nedolo\[CHacek]eni integral \
+na istem grafu.\
+\>", "Text",ExpressionUUID->"ae904430-ab8d-9645-90ba-1ef509e7a2ba"],
+
+Cell["\<\
+Plot[{Sin[x], Integrate[Sin[x], x]}, {x, -2 Pi, 2 Pi},
+ PlotLegends -> {\"f(x) = sin(x)\", \"F(x) = -cos(x)\"}, AxesLabel -> {\"x\", \
+\"y\"}]\
+\>", "Input",ExpressionUUID->"496b7257-04d1-2f42-8a04-58270fd6dc6d"],
+
+Cell["Naenkrat nari\[SHacek]emo ve\[CHacek] funkcij skupaj z njihovimi \
+integrali.", "Text",ExpressionUUID->"0b61760b-1e40-ed4f-bfc9-712686aa031c"],
+
+Cell["\<\
+GraphicsGrid[Partition[
+  Table[Plot[{f, Integrate[f, x]}, {x, -2, 2}, PlotLabel -> \
+TraditionalForm[f]],
+   {f, {x^3, Exp[x], Cos[x], 1/(1 + x^2)}}], 2]]\
+\>", "Input",ExpressionUUID->"615d25dc-44c2-0245-9abe-1ea8f54d8dad"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["3. Naprednej\[SHacek]i prikaz", "Section",ExpressionUUID->"06edab66-ba59-b443-bfe6-d10bbba5da70"],
+
+Cell["\<\
+Definiramo lastno funkcijo z Module, ki za dano funkcijo vrne vrstico tabele \
+in hkrati preveri pravilnost integrala: odvod izra\[CHacek]unanega integrala \
+mora biti enak izhodi\[SHacek]\[CHacek]ni funkciji.\
+\>", "Text",ExpressionUUID->"c30eb2e6-51e0-704c-8fe2-fbd437c3d0f1"],
+
+Cell["\<\
+integralVrstica[f_] := Module[{F, preveri},
+  F = Integrate[f, x];
+  preveri = Simplify[D[F, x] - f] === 0;
+  {TraditionalForm[f], TraditionalForm[F], preveri}
+]\
+\>", "Input",ExpressionUUID->"fa95fb06-26e9-bf48-ae3b-723632d434cb"],
+
+Cell["\<\
+Z ukazom Map lastno funkcijo uporabimo na vsakem elementu seznama.\
+\>", "Text",ExpressionUUID->"36e252ec-68aa-ae45-8a54-c0348dcc9a10"],
+
+Cell["\<\
+vrstice = Map[integralVrstica, funkcije];
+Grid[Prepend[vrstice, {\"funkcija\", \"integral\", \"preverjeno?\"}], Frame \
+-> All, Background -> {None, {1 -> LightGreen}}]\
+\>", "Input",ExpressionUUID->"de63f117-a209-fc43-8241-5aef9cec1059"],
+
+Cell["\<\
+Vsaki funkciji pripi\[SHacek]emo kategorijo. Z MapThread se hkrati sprehodimo \
+po dveh seznamih (kategorije in funkcije).\
+\>", "Text",ExpressionUUID->"753483d3-04fd-3443-bdce-ecc9403cc358"],
+
+Cell["\<\
+kategorije = {\"poten\[CHacek]na\", \"logaritemska\", \"eksponentna\", \
+\"trigonometri\[CHacek]na\",
+   \"trigonometri\[CHacek]na\", \"racionalna\", \"trigonometri\[CHacek]na\", \
+\"korenska\"};
+oznacene = MapThread[
+  {#1, TraditionalForm[#2], TraditionalForm[Integrate[#2, x]]} &,
+  {kategorije, funkcije}];
+Grid[Prepend[oznacene, {\"kategorija\", \"f(x)\", \"integral\"}], Frame -> \
+All]\
+\>", "Input",ExpressionUUID->"afbcc90e-a837-ac4a-a0cf-fb239b5d3cf0"],
+
+Cell["\<\
+Z ukazom Apply preverimo, ali so pravilni prav vsi integrali naenkrat (And \
+\[CHacek]ez cel seznam preverjanj).\
+\>", "Text",ExpressionUUID->"25ab0a16-4280-ec4c-b078-c9d93f6bb055"],
+
+Cell["\<\
+vsiPravilni = Apply[And, Map[Simplify[D[Integrate[#, x], x] - #] === 0 &, \
+funkcije]]\
+\>", "Input",ExpressionUUID->"f79c2bdd-f01f-3941-a0fa-87e439fc0172"],
+
+Cell["\<\
+Podatke uredimo v Dataset in nad njim izvajamo poizvedbe (Query).\
+\>", "Text",ExpressionUUID->"008cb34b-9306-e543-a2ca-12852cfa7b5e"],
+
+Cell["\<\
+zbirka = Dataset[MapThread[
+   <|\"Kategorija\" -> #1, \"Funkcija\" -> #2, \"Integral\" -> Integrate[#2, \
+x]|> &,
+   {kategorije, funkcije}]]\
+\>", "Input",ExpressionUUID->"a01d13fb-b4a8-ee4a-bfe3-2ea035d78589"],
+
+Cell["\<\
+Poizvedba 1: pre\[SHacek]tejemo, koliko integralov je v vsaki kategoriji.\
+\>", "Text",ExpressionUUID->"5281f2ab-d903-a64c-b025-aaaefece8d57"],
+
+Cell["zbirka[GroupBy[\"Kategorija\"], Length]", "Input",ExpressionUUID->"89c9ea00-611b-c14f-b9e3-5a7824984f34"],
+
+Cell["\<\
+Poizvedba 2: iz zbirke izberemo samo trigonometri\[CHacek]ne funkcije.\
+\>", "Text",ExpressionUUID->"2d08ce3e-1cd2-b749-ac56-60d572e6ac6d"],
+
+Cell["zbirka[Select[#Kategorija == \"trigonometri\[CHacek]na\" &]]", "Input",ExpressionUUID->"53d8a0ca-50d1-dc4b-95cf-6505ffce07a2"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["4. Izvoz tabele v PDF", "Section",ExpressionUUID->"722af910-688e-1148-bc8f-cf71177196bc"],
+
+Cell["\<\
+Sestavimo kon\[CHacek]no, lepo oblikovano tabelo. Pot do datoteke dolo\
+\[CHacek]imo z NotebookDirectory[], zato koda deluje na vsakem \
+ra\[CHacek]unalniku - potrebno je le, da bele\[ZHacek]nico najprej shranite. \
+(\[CapitalCHacek]e NotebookDirectory[] javi napako, bele\[ZHacek]nico \
+shranite ali pa uporabite FileNameJoin[{$HomeDirectory, \
+\"tabela-integralov.pdf\"}].)\
+\>", "Text",ExpressionUUID->"f0c01612-e3ba-b94e-b557-e089c68c8d4c"],
+
+Cell["\<\
+koncnaTabela = Grid[
+  Prepend[
+   MapThread[{#1, TraditionalForm[#2], TraditionalForm[Integrate[#2, x]]} &, \
+{kategorije, funkcije}],
+   {\"Kategorija\", \"Funkcija f(x)\", \"Nedolo\[CHacek]eni integral\"}],
+  Frame -> All, Spacings -> {2, 1}, Background -> {None, {1 -> LightYellow}}];
+koncniDokument = Column[{
+   Style[\"Tabela nedolo\[CHacek]enih integralov\", Bold, 18],
+   Style[\"Avtor: Edis Kova\[CHacek]evi\[CAcute]\", Italic, 11],
+   koncnaTabela}, Spacings -> 2];
+koncniDokument\
+\>", "Input",ExpressionUUID->"07c287e0-afee-0341-ad5c-bb085ff6dfcc"],
+
+Cell["\<\
+izhodnaPot = FileNameJoin[{NotebookDirectory[], \"tabela-integralov.pdf\"}];
+Export[izhodnaPot, koncniDokument]\
+\>", "Input",ExpressionUUID->"e38e56e9-7acc-d34c-9b2b-86cef919ecae"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["5. Zaklju\[CHacek]ek", "Section",ExpressionUUID->"085c78bd-5a8c-d044-8125-9503a4d18c48"],
+
+Cell["\<\
+Sestavili smo pregledno tabelo nedolo\[CHacek]enih integralov osnovnih \
+elementarnih funkcij, jo obogatili z lastno funkcijo (Module), preverili \
+pravilnost integralov ter uporabili Map, MapThread, Apply in poizvedbe \
+(Query) nad Dataset. Kon\[CHacek]no tabelo smo izvozili v PDF.\
+\>", "Text",ExpressionUUID->"5a588c66-b46c-7144-8a81-9b3134c43a32"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{581.25, 648.75},
+WindowMargins->{{243, Automatic}, {Automatic, 40.5}},
+FrontEndVersion->"14.3 for Microsoft Windows (64-bit) (July 8, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"def85852-e4d7-bc49-aadf-efa573cc7005"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 131, 0, 217, "Title",ExpressionUUID->"031e3235-9d7f-a246-937f-91cb1d4adc76"],
+Cell[710, 24, 199, 3, 55, "Text",ExpressionUUID->"b1643336-955e-9842-a67a-469302de025f"],
+Cell[CellGroupData[{
+Cell[934, 31, 81, 0, 66, "Section",ExpressionUUID->"cc8e7900-d782-5f42-8a97-444e04f37027"],
+Cell[1018, 33, 481, 7, 121, "Text",ExpressionUUID->"d53a8ba2-3e30-7448-a2f9-7754129cba27"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1536, 45, 91, 0, 66, "Section",ExpressionUUID->"9309f20b-7cec-924e-9e35-2ebea5b30ea6"],
+Cell[1630, 47, 232, 3, 55, "Text",ExpressionUUID->"4fddb8f8-d9c8-3844-bd1a-0a225b035a43"],
+Cell[1865, 52, 181, 5, 76, "Input",ExpressionUUID->"8d4b772a-b9d5-c340-bb13-717b85d4cd8f"],
+Cell[2049, 59, 151, 2, 33, "Text",ExpressionUUID->"caf2258e-da5a-0442-8cc1-52517bcedbac"],
+Cell[2203, 63, 168, 3, 28, "Input",ExpressionUUID->"f285f53b-9a39-8f4d-afcd-2e7884e965db"],
+Cell[2374, 68, 175, 3, 55, "Text",ExpressionUUID->"f307e1f8-cf6b-4340-a18a-d2874c1f4712"],
+Cell[2552, 73, 294, 5, 44, "Input",ExpressionUUID->"a8152bf6-25c9-c340-93cd-e9cedb325020"],
+Cell[2849, 80, 173, 3, 55, "Text",ExpressionUUID->"ae904430-ab8d-9645-90ba-1ef509e7a2ba"],
+Cell[3025, 85, 222, 4, 44, "Input",ExpressionUUID->"496b7257-04d1-2f42-8a04-58270fd6dc6d"],
+Cell[3250, 91, 148, 1, 33, "Text",ExpressionUUID->"0b61760b-1e40-ed4f-bfc9-712686aa031c"],
+Cell[3401, 94, 235, 5, 60, "Input",ExpressionUUID->"615d25dc-44c2-0245-9abe-1ea8f54d8dad"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3673, 104, 103, 0, 66, "Section",ExpressionUUID->"06edab66-ba59-b443-bfe6-d10bbba5da70"],
+Cell[3779, 106, 288, 4, 77, "Text",ExpressionUUID->"c30eb2e6-51e0-704c-8fe2-fbd437c3d0f1"],
+Cell[4070, 112, 241, 6, 70, "Input",ExpressionUUID->"fa95fb06-26e9-bf48-ae3b-723632d434cb"],
+Cell[4314, 120, 145, 2, 70, "Text",ExpressionUUID->"36e252ec-68aa-ae45-8a54-c0348dcc9a10"],
+Cell[4462, 124, 248, 4, 70, "Input",ExpressionUUID->"de63f117-a209-fc43-8241-5aef9cec1059"],
+Cell[4713, 130, 201, 3, 70, "Text",ExpressionUUID->"753483d3-04fd-3443-bdce-ecc9403cc358"],
+Cell[4917, 135, 472, 10, 70, "Input",ExpressionUUID->"afbcc90e-a837-ac4a-a0cf-fb239b5d3cf0"],
+Cell[5392, 147, 191, 3, 70, "Text",ExpressionUUID->"25ab0a16-4280-ec4c-b078-c9d93f6bb055"],
+Cell[5586, 152, 166, 3, 70, "Input",ExpressionUUID->"f79c2bdd-f01f-3941-a0fa-87e439fc0172"],
+Cell[5755, 157, 144, 2, 70, "Text",ExpressionUUID->"008cb34b-9306-e543-a2ca-12852cfa7b5e"],
+Cell[5902, 161, 222, 5, 70, "Input",ExpressionUUID->"a01d13fb-b4a8-ee4a-bfe3-2ea035d78589"],
+Cell[6127, 168, 152, 2, 70, "Text",ExpressionUUID->"5281f2ab-d903-a64c-b025-aaaefece8d57"],
+Cell[6282, 172, 111, 0, 70, "Input",ExpressionUUID->"89c9ea00-611b-c14f-b9e3-5a7824984f34"],
+Cell[6396, 174, 149, 2, 70, "Text",ExpressionUUID->"2d08ce3e-1cd2-b749-ac56-60d572e6ac6d"],
+Cell[6548, 178, 132, 0, 70, "Input",ExpressionUUID->"53d8a0ca-50d1-dc4b-95cf-6505ffce07a2"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6717, 183, 95, 0, 70, "Section",ExpressionUUID->"722af910-688e-1148-bc8f-cf71177196bc"],
+Cell[6815, 185, 454, 7, 70, "Text",ExpressionUUID->"f0c01612-e3ba-b94e-b557-e089c68c8d4c"],
+Cell[7272, 194, 571, 12, 70, "Input",ExpressionUUID->"07c287e0-afee-0341-ad5c-bb085ff6dfcc"],
+Cell[7846, 208, 191, 3, 70, "Input",ExpressionUUID->"e38e56e9-7acc-d34c-9b2b-86cef919ecae"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8074, 216, 94, 0, 70, "Section",ExpressionUUID->"085c78bd-5a8c-d044-8125-9503a4d18c48"],
+Cell[8171, 218, 362, 5, 70, "Text",ExpressionUUID->"5a588c66-b46c-7144-8a81-9b3134c43a32"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
