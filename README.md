@@ -46,6 +46,6 @@ poljubnem računalniku brez ročnega popravljanja.
 ## Video posnetek
 
 <!-- Sem prilepi povezavo do videa, ko ga posnameš -->
-Povezava: _(dodaj)_
+Povezava: _([dodaj](https://youtu.be/wahvnisp_Cc))_
 
 Pripravil: Edis Kovačević
